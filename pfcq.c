@@ -21,6 +21,7 @@
 #include <execinfo.h>
 #include <pfcq.h>
 #include <pthread.h>
+#include <regex.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,6 +35,20 @@
 #define WARNING_SUFFIX_SYSLOG	"Warning #%d"
 #define WARNING_SUFFIX_STDERR	WARNING_SUFFIX_SYSLOG", "
 #define WARNING_UNIQ_LENGTH		4096
+
+static pfcq_size_unit_t pfcq_units[] =
+{
+	{0ULL,				"B"},
+	{1000ULL,			"kB"},
+	{1000000ULL,		"MB"},
+	{1000000000ULL,		"GB"},
+	{1000000000000ULL,	"TB"},
+	{1024ULL,			"KiB"},
+	{1048576ULL,		"MiB"},
+	{1073741824ULL,		"GiB"},
+	{1099511627776ULL,	"TiB"},
+	{0, 0},
+};
 
 static int pfcq_be_verbose;
 static int pfcq_do_debug;
@@ -250,6 +265,60 @@ char* pfcq_cstring(char* _left, const char* _right)
 	char* ret = pfcq_realloc(_left, left_length + right_length + 1);
 	memcpy(ret + left_length, _right, right_length);
 	ret[left_length + right_length] = '\0';
+
+	return ret;
+}
+
+uint64_t pfcq_mbytes(const char* _human_readable)
+{
+	char* expression = pfcq_strdup("^([0-9]+)(");
+	regex_t regex;
+	regmatch_t matches[3];
+	uint64_t ret = 0;
+
+	pfcq_zero(&regex, sizeof(regex_t));
+	pfcq_zero(matches, 3 * sizeof(regmatch_t));
+
+	for (unsigned int i = 0; ; i++)
+	{
+		if (unlikely(pfcq_units[i].unit == 0))
+			break;
+
+		expression = pfcq_cstring(expression, pfcq_units[i].unit);
+		expression = pfcq_cstring(expression, "|");
+	}
+
+	expression = pfcq_cstring(expression, ")$");
+
+	if (unlikely(regcomp(&regex, expression, REG_EXTENDED)))
+		return ret;
+
+	if (unlikely(regexec(&regex, _human_readable, 3, matches, 0)))
+		return ret;
+
+	regfree(&regex);
+
+	char* value = pfcq_alloc(matches[1].rm_eo - matches[1].rm_so + 1);
+	char* units = pfcq_alloc(matches[2].rm_eo - matches[2].rm_so + 1);
+
+	memcpy(value, &_human_readable[matches[1].rm_so], matches[1].rm_eo - matches[1].rm_so);
+	memcpy(units, &_human_readable[matches[2].rm_so], matches[2].rm_eo - matches[2].rm_so);
+
+	ret = atoll(value);
+	for (unsigned int i = 0; ; i++)
+	{
+		if (unlikely(pfcq_units[i].unit == 0))
+			break;
+		if (strcmp(units, pfcq_units[i].unit) == 0)
+		{
+			ret *= pfcq_units[i].base;
+			break;
+		}
+	}
+
+	pfcq_free(value);
+	pfcq_free(units);
+	pfcq_free(expression);
 
 	return ret;
 }

@@ -51,6 +51,12 @@
 #define unlikely(x)				(x)
 #endif /* __GNUC__ */
 
+typedef struct pfcq_size_unit
+{
+	uint64_t base;
+	const char* unit;
+} pfcq_size_unit_t;
+
 void __pfcq_debug(int _direct, const char* _format, ...) __attribute__((format(printf, 2, 3), nonnull(2)));
 void __pfcq_warning(const char* _message, const int _errno, const char* _file, int _line, int _direct) __attribute__((nonnull(1, 3)));
 void __pfcq_panic(const char* _message, const int _errno, const char* _file, int _line) __attribute__((noreturn, nonnull(1, 3)));
@@ -65,6 +71,7 @@ int pfcq_isnumber(const char* _string) __attribute__((nonnull(1), warn_unused_re
 char* pfcq_strdup(const char* _string) __attribute__((nonnull(1), warn_unused_result));
 char* pfcq_mstring(const char* _format, ...) __attribute__((format(printf, 1, 2), nonnull(1)));
 char* pfcq_cstring(char* _left, const char* _right) __attribute__((nonnull(1, 2)));
+uint64_t pfcq_mbytes(const char* _human_readable) __attribute__((nonnull(1)));
 static inline uint64_t __pfcq_timespec_diff_ns(struct timespec _timestamp1, struct timespec _timestamp2) __attribute__((always_inline));
 static inline uint64_t __pfcq_timespec_to_ns(struct timespec _timestamp) __attribute__((always_inline));
 
