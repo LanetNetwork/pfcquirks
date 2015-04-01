@@ -17,8 +17,11 @@
  */
 
 #include <ctype.h>
+#include <dirent.h>
 #include <errno.h>
 #include <execinfo.h>
+#include <fnmatch.h>
+#include <limits.h>
 #include <pfcq.h>
 #include <pthread.h>
 #include <regex.h>
@@ -29,6 +32,7 @@
 #include <sysexits.h>
 #include <syslog.h>
 #include <time.h>
+#include <unistd.h>
 
 #define STACKITEM_PREFIX_SYSLOG	"%ju) %s\n"
 #define STACKITEM_PREFIX_STDERR	"\t"STACKITEM_PREFIX_SYSLOG
@@ -321,5 +325,94 @@ uint64_t pfcq_mbytes(const char* _human_readable)
 	pfcq_free(expression);
 
 	return ret;
+}
+
+static int pfcq_procfdfilter(const struct dirent* _dir)
+{
+	return !fnmatch("[0-9]*", _dir->d_name, 0);
+}
+
+static void pfcq_free_dirent_list(struct dirent*** _dirents, size_t _amount)
+{
+	for (size_t i = 0; i < _amount; i++)
+		free((*_dirents)[i]);
+	free(*_dirents);
+}
+
+int pfcq_isopened(const char* _path)
+{
+	int ret = 0;
+	int n = -1;
+	int k = -1;
+	char proc_path[PATH_MAX];
+	char fd_path[PATH_MAX];
+	char resolved_path[PATH_MAX];
+	struct dirent** names;
+	struct dirent** fds;
+
+	if (unlikely(!_path))
+		goto out;
+
+	n = scandir("/proc", &names, pfcq_procfdfilter, 0);
+	if (unlikely(n == -1))
+	{
+		warning("scandir");
+		goto out;
+	}
+
+	for (int i = 0; i < n; i++)
+	{
+		pfcq_zero(proc_path, PATH_MAX);
+		if (unlikely(snprintf(proc_path, PATH_MAX, "/proc/%s/fd", names[i]->d_name) < 0))
+		{
+			warning("snprintf");
+			continue;
+		}
+		k = scandir(proc_path, &fds, pfcq_procfdfilter, 0);
+		if (unlikely(k == -1))
+			continue;
+		for (int j = 0; j < k; j++)
+		{
+			pfcq_zero(fd_path, PATH_MAX);
+			pfcq_zero(resolved_path, PATH_MAX);
+			if (unlikely(snprintf(fd_path, PATH_MAX, "%s/%s", proc_path, fds[j]->d_name) < 0))
+			{
+				warning("snprintf");
+				continue;
+			}
+			if (unlikely(readlink(fd_path, resolved_path, PATH_MAX) == -1))
+				continue;
+			if (unlikely(strcmp(_path, resolved_path) == 0))
+			{
+				pfcq_free_dirent_list(&fds, k);
+				ret = 1;
+				goto lfree;
+			}
+		}
+		pfcq_free_dirent_list(&fds, k);
+	}
+
+lfree:
+	pfcq_free_dirent_list(&names, n);
+
+out:
+	return ret;
+}
+
+char* pfcq_get_file_path_from_fd(int _fd, char* _buffer, size_t _buffer_size)
+{
+	ssize_t len = 0;
+
+	if (unlikely(_fd <= 0))
+		return NULL;
+
+	if (unlikely(snprintf(_buffer, _buffer_size, "/proc/self/fd/%d", _fd) < 0))
+		panic("snprintf");
+	if (unlikely((len = readlink(_buffer, _buffer, _buffer_size - 1)) < 0))
+		return NULL;
+
+	_buffer[len] = '\0';
+
+	return _buffer;
 }
 

@@ -72,6 +72,10 @@ char* pfcq_strdup(const char* _string) __attribute__((nonnull(1), warn_unused_re
 char* pfcq_mstring(const char* _format, ...) __attribute__((format(printf, 1, 2), nonnull(1)));
 char* pfcq_cstring(char* _left, const char* _right) __attribute__((nonnull(1, 2)));
 uint64_t pfcq_mbytes(const char* _human_readable) __attribute__((nonnull(1)));
+
+int pfcq_isopened(const char* _path) __attribute__((nonnull(1), warn_unused_result));
+char* pfcq_get_file_path_from_fd(int _fd, char* _buffer, size_t _buffer_size) __attribute__((nonnull(2), warn_unused_result));
+
 static inline uint64_t __pfcq_timespec_diff_ns(struct timespec _timestamp1, struct timespec _timestamp2) __attribute__((always_inline));
 static inline uint64_t __pfcq_timespec_to_ns(struct timespec _timestamp) __attribute__((always_inline));
 
