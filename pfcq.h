@@ -51,6 +51,18 @@
 #define unlikely(x)				(x)
 #endif /* __GNUC__ */
 
+#define CHMOD_755					(S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH)
+#define CHMOD_644					(S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
+#define GLFS_DEFAULT_PORT			24007
+#define GLFS_DEFAULT_PROTOCOL		"tcp"
+#define GLFS_DEFAULT_VERBOSITY		7
+#define DEV_NULL					((const char*)"/dev/null")
+#define DEV_STDERR					((const char*)"/dev/stderr")
+#define DENTRY_BUFFER_SIZE			512
+#define IO_CHUNK_SIZE				(4 * 1024 * 1024)
+#define NET_CHUNK_SIZE				16384
+#define EPOLL_MAXEVENTS				32
+
 typedef struct pfcq_size_unit
 {
 	uint64_t base;
