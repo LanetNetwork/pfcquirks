@@ -41,7 +41,7 @@
 #define panic(A)				__pfcq_panic(A, errno, __FILE__, __LINE__)
 
 #define pfcq_zero(A, B)			memset(A, 0, B)
-#define pfcq_free(A)			__pfcq_free(A)
+#define pfcq_free(A)			__pfcq_free((void**)&(A))
 
 #ifdef __GNUC__
 #define likely(x)				__builtin_expect(!!(x), 1)
@@ -77,7 +77,7 @@ void pfcq_debug_done(void);
 
 void* pfcq_alloc(size_t _size) __attribute__((malloc, warn_unused_result));
 void* pfcq_realloc(void* _old_pointer, size_t _new_size) __attribute__((malloc, nonnull(1), warn_unused_result));
-void __pfcq_free(void* _pointer) __attribute__((nonnull(1)));
+void __pfcq_free(void** _pointer) __attribute__((nonnull(1)));
 
 int pfcq_isnumber(const char* _string) __attribute__((nonnull(1), warn_unused_result));
 char* pfcq_strdup(const char* _string) __attribute__((nonnull(1), warn_unused_result));

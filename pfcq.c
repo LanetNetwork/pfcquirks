@@ -182,31 +182,45 @@ void* pfcq_alloc(size_t _size)
 {
 	void* res = NULL;
 
+	_size += sizeof(size_t);
 	res = calloc(1, _size);
 	if (unlikely(!res))
 		panic("calloc");
+	*(size_t*)res = _size;
 
-	return res;
+	return ((size_t*)res) + 1;
 }
 
 void* pfcq_realloc(void* _old_pointer, size_t _new_size)
 {
 	void* tmp = NULL;
 
+	_new_size += sizeof(size_t);
+	_old_pointer = (void*)(((size_t*)_old_pointer) - 1);
 	if (unlikely(!_old_pointer))
 		panic("NULL pointer detected");
 
 	tmp = realloc(_old_pointer, _new_size);
 	if (unlikely(!tmp))
 		panic("realloc");
+	*(size_t*)tmp = _new_size;
 
-	return tmp;
+	return ((size_t*)tmp) + 1;
 }
 
-void __pfcq_free(void* _pointer)
+void __pfcq_free(void** _pointer)
 {
 	if (likely(_pointer))
-		free(_pointer);
+	{
+		size_t* p = ((size_t*)(*_pointer)) - 1;
+		if (likely(p))
+		{
+			size_t size = *p;
+			pfcq_zero(p, size);
+			free(p);
+			*_pointer = NULL;
+		}
+	}
 }
 
 int pfcq_isnumber(const char* _string)
