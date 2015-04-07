@@ -212,13 +212,17 @@ void __pfcq_free(void** _pointer)
 {
 	if (likely(_pointer))
 	{
-		size_t* p = ((size_t*)(*_pointer)) - 1;
+		void* p = *_pointer;
 		if (likely(p))
 		{
-			size_t size = *p;
-			pfcq_zero(p, size);
-			free(p);
-			*_pointer = NULL;
+			size_t* s = (size_t*)p - 1;
+			if (likely(s))
+			{
+				size_t size = *s;
+				pfcq_zero(s, size);
+				free(s);
+				*_pointer = NULL;
+			}
 		}
 	}
 }
