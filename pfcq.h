@@ -86,7 +86,7 @@ char* pfcq_cstring(char* _left, const char* _right) __attribute__((nonnull(1, 2)
 char* pfcq_bstring(const char* _buffer, size_t _buffer_size) __attribute__((nonnull(1), warn_unused_result));
 uint64_t pfcq_mbytes(const char* _human_readable) __attribute__((nonnull(1)));
 
-int pfcq_hint_cpus(int _hint) __attribute__((warn_unused_result));
+unsigned short int pfcq_hint_cpus(int _hint) __attribute__((warn_unused_result));
 
 int pfcq_isopened(const char* _path) __attribute__((nonnull(1), warn_unused_result));
 char* pfcq_get_file_path_from_fd(int _fd, char* _buffer, size_t _buffer_size) __attribute__((nonnull(2), warn_unused_result));

@@ -342,17 +342,20 @@ uint64_t pfcq_mbytes(const char* _human_readable)
 	return ret;
 }
 
-int pfcq_hint_cpus(int _hint)
+unsigned short int pfcq_hint_cpus(int _hint)
 {
-	int ret = 0;
+	unsigned short int ret = 0;
+	int res = 0;
 
 	if (_hint < 1)
 	{
-		ret = sysconf(_SC_NPROCESSORS_ONLN);
-		if (unlikely(ret == -1))
+		res = sysconf(_SC_NPROCESSORS_ONLN);
+		if (unlikely(res == -1))
 			ret = 1;
+		else
+			ret = (unsigned short int)res;
 	} else
-		ret = _hint;
+		ret = (unsigned short int)_hint;
 
 	return ret;
 }
