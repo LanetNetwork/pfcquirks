@@ -277,6 +277,17 @@ char* pfcq_cstring(char* _left, const char* _right)
 	return ret;
 }
 
+char* pfcq_bstring(const char* _buffer, size_t _buffer_size)
+{
+	char* ret = NULL;
+
+	ret = pfcq_alloc(_buffer_size + 1);
+	memcpy(ret, _buffer, _buffer_size);
+	ret[_buffer_size] = '\0';
+
+	return ret;
+}
+
 uint64_t pfcq_mbytes(const char* _human_readable)
 {
 	char* expression = pfcq_strdup("^([0-9]+)(");
