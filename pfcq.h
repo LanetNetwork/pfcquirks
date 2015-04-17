@@ -81,7 +81,7 @@ void __pfcq_free(void** _pointer) __attribute__((nonnull(1)));
 
 int pfcq_isnumber(const char* _string) __attribute__((nonnull(1), warn_unused_result));
 char* pfcq_strdup(const char* _string) __attribute__((nonnull(1), warn_unused_result));
-char* pfcq_mstring(const char* _format, ...) __attribute__((format(printf, 1, 2), nonnull(1)));
+char* pfcq_mstring(const char* _format, ...) __attribute__((format(printf, 1, 2), nonnull(1), warn_unused_result));
 char* pfcq_cstring(char* _left, const char* _right) __attribute__((nonnull(1, 2)));
 char* pfcq_bstring(const char* _buffer, size_t _buffer_size) __attribute__((nonnull(1), warn_unused_result));
 uint64_t pfcq_mbytes(const char* _human_readable) __attribute__((nonnull(1)));
