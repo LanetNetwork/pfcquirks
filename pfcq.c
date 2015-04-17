@@ -342,6 +342,21 @@ uint64_t pfcq_mbytes(const char* _human_readable)
 	return ret;
 }
 
+int pfcq_hint_cpus(int _hint)
+{
+	int ret = 0;
+
+	if (_hint < 1)
+	{
+		ret = sysconf(_SC_NPROCESSORS_ONLN);
+		if (unlikely(ret == -1))
+			ret = 1;
+	} else
+		ret = _hint;
+
+	return ret;
+}
+
 static int pfcq_procfdfilter(const struct dirent* _dir)
 {
 	return !fnmatch("[0-9]*", _dir->d_name, 0);
