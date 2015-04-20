@@ -383,7 +383,7 @@ int pfcq_isopened(const char* _path)
 			}
 			if (unlikely(readlink(fd_path, resolved_path, PATH_MAX) == -1))
 				continue;
-			if (unlikely(strcmp(_path, resolved_path) == 0))
+			if (unlikely(strncmp(_path, resolved_path, PATH_MAX) == 0))
 			{
 				pfcq_free_dirent_list(&fds, k);
 				ret = 1;
