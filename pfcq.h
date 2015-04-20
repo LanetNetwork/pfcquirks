@@ -53,6 +53,7 @@
 
 #define CHMOD_755					(S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH)
 #define CHMOD_644					(S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
+#define FS_ROOT						"/"
 #define GLFS_DEFAULT_PORT			24007
 #define GLFS_DEFAULT_PROTOCOL		"tcp"
 #define GLFS_DEFAULT_VERBOSITY		7
