@@ -296,7 +296,7 @@ uint64_t pfcq_mbytes(const char* _human_readable)
 	{
 		if (unlikely(pfcq_units[i].unit == 0))
 			break;
-		if (strcmp(units, pfcq_units[i].unit) == 0)
+		if (strncmp(units, pfcq_units[i].unit, strlen(pfcq_units[i].unit)) == 0)
 		{
 			ret *= pfcq_units[i].base;
 			break;
