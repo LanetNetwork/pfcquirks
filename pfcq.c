@@ -257,6 +257,8 @@ char* pfcq_bstring(const char* _buffer, size_t _buffer_size)
 uint64_t pfcq_mbytes(const char* _human_readable)
 {
 	char* expression = pfcq_strdup("^([0-9]+)(");
+	char* value = NULL;
+	char* units = NULL;
 	regex_t regex;
 	regmatch_t matches[3];
 	uint64_t ret = 0;
@@ -283,8 +285,8 @@ uint64_t pfcq_mbytes(const char* _human_readable)
 
 	regfree(&regex);
 
-	char* value = pfcq_alloc(matches[1].rm_eo - matches[1].rm_so + 1);
-	char* units = pfcq_alloc(matches[2].rm_eo - matches[2].rm_so + 1);
+	value = pfcq_alloc(matches[1].rm_eo - matches[1].rm_so + 1);
+	units = pfcq_alloc(matches[2].rm_eo - matches[2].rm_so + 1);
 
 	memcpy(value, &_human_readable[matches[1].rm_so], matches[1].rm_eo - matches[1].rm_so);
 	memcpy(units, &_human_readable[matches[2].rm_so], matches[2].rm_eo - matches[2].rm_so);
