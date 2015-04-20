@@ -38,7 +38,6 @@
 #define STACKITEM_PREFIX_STDERR	"\t"STACKITEM_PREFIX_SYSLOG
 #define WARNING_SUFFIX_SYSLOG	"Warning #%d"
 #define WARNING_SUFFIX_STDERR	WARNING_SUFFIX_SYSLOG", "
-#define WARNING_UNIQ_LENGTH		4096
 
 static pfcq_size_unit_t pfcq_units[] =
 {
@@ -59,8 +58,6 @@ static int pfcq_do_debug;
 static int pfcq_warnings_count;
 static int pfcq_use_syslog;
 static pthread_mutex_t pfcq_warning_ordering_lock;
-static char pfcq_warning_uniq[WARNING_UNIQ_LENGTH];
-static struct timespec pfcq_uniq_time;
 
 void __pfcq_debug(int _direct, const char* _format, ...)
 {
@@ -101,45 +98,16 @@ static void show_stacktrace(void)
 
 void __pfcq_warning(const char* _message, const int _errno, const char* _file, int _line, int _direct)
 {
-	char current_uniq[WARNING_UNIQ_LENGTH];
-	struct timespec current_time;
-	int limit = 0;
-	uint64_t time_diff;
-
 	if (unlikely(pthread_mutex_lock(&pfcq_warning_ordering_lock)))
 		exit(EX_SOFTWARE);
-	if (unlikely(clock_gettime(CLOCK_MONOTONIC, &current_time) == -1))
-		exit(EX_SOFTWARE);
-	time_diff = __pfcq_timespec_diff_ns(current_time, pfcq_uniq_time);
-	pfcq_zero(current_uniq, WARNING_UNIQ_LENGTH);
-	snprintf(current_uniq, WARNING_UNIQ_LENGTH, "%s%d%s%d%d", _message, _errno, _file, _line, _direct);
-	if (likely(strcmp(current_uniq, pfcq_warning_uniq) == 0))
-	{
-		if (likely(time_diff < 5000000000ULL))
-		{
-			limit = 1;
-		} else
-		{
-			memcpy(&pfcq_uniq_time, &current_time, sizeof(struct timespec));
-		}
-	} else
-	{
-		memcpy(&pfcq_uniq_time, &current_time, sizeof(struct timespec));
-		pfcq_zero(pfcq_warning_uniq, WARNING_UNIQ_LENGTH);
-		strncpy(pfcq_warning_uniq, current_uniq, WARNING_UNIQ_LENGTH);
-	}
 	if (likely(_direct))
 	{
 		pfcq_warnings_count++;
-		if (unlikely(!limit))
-			__pfcq_debug(1, pfcq_use_syslog ? WARNING_SUFFIX_SYSLOG : WARNING_SUFFIX_STDERR, pfcq_warnings_count);
+		__pfcq_debug(1, pfcq_use_syslog ? WARNING_SUFFIX_SYSLOG : WARNING_SUFFIX_STDERR, pfcq_warnings_count);
 	}
-	if (unlikely(!limit))
-	{
-		__pfcq_debug(1, "File=%s, line=%d\n", _file, _line);
-		__pfcq_debug(1, "%s: %s\n", _message, strerror(_errno));
-		show_stacktrace();
-	}
+	__pfcq_debug(1, "File=%s, line=%d\n", _file, _line);
+	__pfcq_debug(1, "%s: %s\n", _message, strerror(_errno));
+	show_stacktrace();
 	if (unlikely(pthread_mutex_unlock(&pfcq_warning_ordering_lock)))
 		exit(EX_SOFTWARE);
 
@@ -158,8 +126,6 @@ void pfcq_debug_init(int _verbose, int _debug, int _syslog)
 	pfcq_do_debug = _debug;
 	pfcq_use_syslog = _syslog;
 	pfcq_warnings_count = 0;
-	pfcq_zero(pfcq_warning_uniq, WARNING_UNIQ_LENGTH);
-	pfcq_zero(&pfcq_uniq_time, sizeof(struct timespec));
 	if (unlikely(pthread_mutex_init(&pfcq_warning_ordering_lock, NULL)))
 		panic("pthread_mutex_init");
 	if (pfcq_use_syslog)
