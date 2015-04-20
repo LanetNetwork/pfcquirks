@@ -289,7 +289,7 @@ uint64_t pfcq_mbytes(const char* _human_readable)
 	memcpy(value, &_human_readable[matches[1].rm_so], matches[1].rm_eo - matches[1].rm_so);
 	memcpy(units, &_human_readable[matches[2].rm_so], matches[2].rm_eo - matches[2].rm_so);
 
-	ret = atoll(value);
+	ret = strtoll(value, NULL, 10);
 	for (unsigned int i = 0; ; i++)
 	{
 		if (unlikely(pfcq_units[i].unit == 0))
