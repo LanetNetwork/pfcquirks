@@ -114,6 +114,12 @@ void __pfcq_warning(const char* _message, const int _errno, const char* _file, i
 	return;
 }
 
+void __pfcq_stop(const char* _message)
+{
+	__pfcq_debug(1, "%s\n", _message);
+	exit(EX_SOFTWARE);
+}
+
 void __pfcq_panic(const char* _message, const int _errno, const char* _file, int _line)
 {
 	__pfcq_warning(_message, _errno, _file, _line, 0);
