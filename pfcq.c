@@ -114,6 +114,13 @@ void __pfcq_warning(const char* _message, const int _errno, const char* _file, i
 	return;
 }
 
+void __pfcq_fail(const char* _message, const int _errno)
+{
+	__pfcq_debug(1, "%s: %s\n", _message, strerror(_errno));
+
+	return;
+}
+
 void __pfcq_stop(const char* _message)
 {
 	__pfcq_debug(1, "%s\n", _message);

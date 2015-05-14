@@ -38,6 +38,7 @@
 #endif /* MODE_DEBUG */
 
 #define warning(A)				__pfcq_warning(A, errno, __FILE__, __LINE__, 1)
+#define fail(A)					__pfcq_fail(A, errno)
 #define stop(A)					__pfcq_stop(A)
 #define panic(A)				__pfcq_panic(A, errno, __FILE__, __LINE__)
 
@@ -72,6 +73,7 @@ typedef struct pfcq_size_unit
 
 void __pfcq_debug(int _direct, const char* _format, ...) __attribute__((format(printf, 2, 3), nonnull(2)));
 void __pfcq_warning(const char* _message, const int _errno, const char* _file, int _line, int _direct) __attribute__((nonnull(1, 3)));
+void __pfcq_fail(const char* _message, const int _errno) __attribute__((nonnull(1)));
 void __pfcq_stop(const char* _message) __attribute__((nonnull(1)));
 void __pfcq_panic(const char* _message, const int _errno, const char* _file, int _line) __attribute__((noreturn, nonnull(1, 3)));
 void pfcq_debug_init(int _verbose, int _debug, int _syslog);
