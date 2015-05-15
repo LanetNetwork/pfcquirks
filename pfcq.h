@@ -97,6 +97,7 @@ char* pfcq_get_file_path_from_fd(int _fd, char* _buffer, size_t _buffer_size) __
 
 static inline uint64_t __pfcq_timespec_diff_ns(struct timespec _timestamp1, struct timespec _timestamp2) __attribute__((always_inline));
 static inline uint64_t __pfcq_timespec_to_ns(struct timespec _timestamp) __attribute__((always_inline));
+static inline struct timespec __pfcq_ns_to_timespec(uint64_t _ns) __attribute__((always_inline));
 
 static inline uint64_t __pfcq_timespec_diff_ns(struct timespec _timestamp1, struct timespec _timestamp2)
 {
@@ -108,6 +109,16 @@ static inline uint64_t __pfcq_timespec_diff_ns(struct timespec _timestamp1, stru
 static inline uint64_t __pfcq_timespec_to_ns(struct timespec _timestamp)
 {
 	return _timestamp.tv_sec * 1000000000ULL + _timestamp.tv_nsec;
+}
+
+static inline struct timespec __pfcq_ns_to_timespec(uint64_t _ns)
+{
+	struct timespec ret;
+
+	ret.tv_sec = _ns / 1000000000ULL;
+	ret.tv_nsec = _ns - ret.tv_sec * 1000000000ULL;
+
+	return ret;
 }
 
 #endif /* __PFCQ_H__ */
