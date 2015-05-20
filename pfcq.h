@@ -95,13 +95,13 @@ unsigned short int pfcq_hint_cpus(int _hint) __attribute__((warn_unused_result))
 int pfcq_isopened(const char* _path) __attribute__((nonnull(1), warn_unused_result));
 char* pfcq_get_file_path_from_fd(int _fd, char* _buffer, size_t _buffer_size) __attribute__((nonnull(2), warn_unused_result));
 
-static inline uint64_t __pfcq_timespec_diff_ns(struct timespec _timestamp1, struct timespec _timestamp2) __attribute__((always_inline));
+static inline int64_t __pfcq_timespec_diff_ns(struct timespec _timestamp1, struct timespec _timestamp2) __attribute__((always_inline));
 static inline uint64_t __pfcq_timespec_to_ns(struct timespec _timestamp) __attribute__((always_inline));
 static inline struct timespec __pfcq_ns_to_timespec(uint64_t _ns) __attribute__((always_inline));
 static inline struct timeval __pfcq_us_to_timeval(uint64_t _us) __attribute__((always_inline));
 static inline void pfcq_sleep(uint64_t _us) __attribute__((always_inline));
 
-static inline uint64_t __pfcq_timespec_diff_ns(struct timespec _timestamp1, struct timespec _timestamp2)
+static inline int64_t __pfcq_timespec_diff_ns(struct timespec _timestamp1, struct timespec _timestamp2)
 {
 	uint64_t ns1 = __pfcq_timespec_to_ns(_timestamp1);
 	uint64_t ns2 = __pfcq_timespec_to_ns(_timestamp2);
