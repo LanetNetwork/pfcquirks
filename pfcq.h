@@ -22,7 +22,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include <sys/time.h>
+#include <time.h>
 
 #define PFCQ_STACKTRACE_SIZE	20
 
@@ -99,6 +99,7 @@ static inline uint64_t __pfcq_timespec_diff_ns(struct timespec _timestamp1, stru
 static inline uint64_t __pfcq_timespec_to_ns(struct timespec _timestamp) __attribute__((always_inline));
 static inline struct timespec __pfcq_ns_to_timespec(uint64_t _ns) __attribute__((always_inline));
 static inline struct timeval __pfcq_us_to_timeval(uint64_t _us) __attribute__((always_inline));
+static inline void pfcq_sleep(uint64_t _us) __attribute__((always_inline));
 
 static inline uint64_t __pfcq_timespec_diff_ns(struct timespec _timestamp1, struct timespec _timestamp2)
 {
@@ -130,6 +131,14 @@ static inline struct timeval __pfcq_us_to_timeval(uint64_t _us)
 	ret.tv_usec = _us - ret.tv_sec * 1000000ULL;
 
 	return ret;
+}
+
+static inline void pfcq_sleep(uint64_t _us)
+{
+	struct timespec time_to_sleep = __pfcq_ns_to_timespec(_us);
+
+	while (likely(nanosleep(&time_to_sleep, &time_to_sleep) == -1 && errno == EINTR))
+		continue;
 }
 
 #endif /* __PFCQ_H__ */
