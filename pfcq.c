@@ -439,7 +439,12 @@ void pfcq_fprng_init(pfcq_fprng_context_t* _context)
 
 	_context->seed = __pfcq_timespec_to_ns(current_time);
 	srandom(_context->seed);
-	_context->seed ^= random();
+	for (size_t i = 0; i < sizeof(uint64_t) * CHAR_BIT; i++)
+	{
+		uint8_t shift = ((uint64_t)random()) % (sizeof(uint64_t) * CHAR_BIT);
+		int long pattern = random();
+		_context->seed ^= (pattern << shift);
+	}
 
 	return;
 }
