@@ -71,6 +71,11 @@ typedef struct pfcq_size_unit
 	const char* unit;
 } pfcq_size_unit_t;
 
+typedef struct pfcq_fprng_context
+{
+	uint64_t seed;
+} pfcq_fprng_context_t;
+
 void __pfcq_debug(int _direct, const char* _format, ...) __attribute__((format(printf, 2, 3), nonnull(2)));
 void __pfcq_warning(const char* _message, const int _errno, const char* _file, int _line, int _direct) __attribute__((nonnull(1, 3)));
 void __pfcq_fail(const char* _message, const int _errno) __attribute__((nonnull(1)));
@@ -94,6 +99,9 @@ unsigned short int pfcq_hint_cpus(int _hint) __attribute__((warn_unused_result))
 
 int pfcq_isopened(const char* _path) __attribute__((nonnull(1), warn_unused_result));
 char* pfcq_get_file_path_from_fd(int _fd, char* _buffer, size_t _buffer_size) __attribute__((nonnull(2), warn_unused_result));
+
+void pfcq_fprng_init(pfcq_fprng_context_t* _context);
+uint64_t pfcq_fprng_get_u64(pfcq_fprng_context_t* _context);
 
 static inline int64_t __pfcq_timespec_diff_ns(struct timespec _timestamp1, struct timespec _timestamp2) __attribute__((always_inline));
 static inline uint64_t __pfcq_timespec_to_ns(struct timespec _timestamp) __attribute__((always_inline));

@@ -430,3 +430,26 @@ char* pfcq_get_file_path_from_fd(int _fd, char* _buffer, size_t _buffer_size)
 	return _buffer;
 }
 
+void pfcq_fprng_init(pfcq_fprng_context_t* _context)
+{
+	struct timespec current_time;
+
+	if (unlikely(clock_gettime(CLOCK_REALTIME, &current_time) == -1))
+		panic("clock_gettime");
+
+	_context->seed = __pfcq_timespec_to_ns(current_time);
+	srandom(_context->seed);
+	_context->seed ^= random();
+
+	return;
+}
+
+uint64_t pfcq_fprng_get_u64(pfcq_fprng_context_t* _context)
+{
+	_context->seed ^= (_context->seed << 21);
+	_context->seed ^= (_context->seed >> 35);
+	_context->seed ^= (_context->seed << 4);
+
+	return _context->seed;
+}
+
