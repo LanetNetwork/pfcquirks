@@ -20,6 +20,7 @@
 #ifndef __PFCQ_H__
 #define __PFCQ_H__
 
+#include <arpa/inet.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <time.h>
@@ -75,6 +76,20 @@ typedef struct pfcq_fprng_context
 {
 	uint64_t seed;
 } pfcq_fprng_context_t;
+
+typedef union pfcq_net_address
+{
+	struct sockaddr address;
+	struct sockaddr_in address4;
+	struct sockaddr_in6 address6;
+	struct sockaddr_storage address_storage;
+} pfcq_net_address_t;
+
+typedef union pfcq_net_host
+{
+	char host4[INET_ADDRSTRLEN];
+	char host6[INET6_ADDRSTRLEN];
+} pfcq_net_host_t;
 
 void __pfcq_debug(int _direct, const char* _format, ...) __attribute__((format(printf, 2, 3), nonnull(2)));
 void __pfcq_warning(const char* _message, const int _errno, const char* _file, int _line, int _direct) __attribute__((nonnull(1, 3)));
