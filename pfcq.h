@@ -156,9 +156,9 @@ static inline struct timeval __pfcq_us_to_timeval(uint64_t _us)
 	return ret;
 }
 
-static inline void pfcq_sleep(uint64_t _us)
+static inline void pfcq_sleep(uint64_t _ns)
 {
-	struct timespec time_to_sleep = __pfcq_ns_to_timespec(_us);
+	struct timespec time_to_sleep = __pfcq_ns_to_timespec(_ns);
 
 	while (likely(nanosleep(&time_to_sleep, &time_to_sleep) == -1 && errno == EINTR))
 		continue;
