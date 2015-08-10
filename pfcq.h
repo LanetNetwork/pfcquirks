@@ -77,6 +77,12 @@ typedef struct pfcq_fprng_context
 	uint64_t seed;
 } pfcq_fprng_context_t;
 
+typedef union pfcq_in_address
+{
+	struct in_addr address4;
+	struct in6_addr address6;
+} pfcq_in_address_t;
+
 typedef union pfcq_net_address
 {
 	struct sockaddr address;
