@@ -105,8 +105,13 @@ void __pfcq_panic(const char* _message, const int _errno, const char* _file, int
 void pfcq_debug_init(int _verbose, int _debug, int _syslog);
 void pfcq_debug_done(void);
 
+#ifdef __clang__
+void* pfcq_alloc(size_t _size) __attribute__((malloc, warn_unused_result));
+void* pfcq_realloc(void* _old_pointer, size_t _new_size) __attribute__((malloc, nonnull(1), warn_unused_result));
+#else /* __clang__ */
 void* pfcq_alloc(size_t _size) __attribute__((malloc, alloc_size(1), warn_unused_result));
 void* pfcq_realloc(void* _old_pointer, size_t _new_size) __attribute__((malloc, nonnull(1), alloc_size(2), warn_unused_result));
+#endif /* __clang__ */
 void __pfcq_free(void** _pointer) __attribute__((nonnull(1)));
 
 int pfcq_isnumber(const char* _string) __attribute__((nonnull(1), warn_unused_result));
