@@ -364,9 +364,6 @@ int pfcq_isopened(const char* _path)
 	struct dirent** names;
 	struct dirent** fds;
 
-	if (unlikely(!_path))
-		goto out;
-
 	n = scandir("/proc", &names, pfcq_procfdfilter, 0);
 	if (unlikely(n == -1))
 	{
