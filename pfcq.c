@@ -189,7 +189,17 @@ void* pfcq_realloc(void* _old_pointer, size_t _new_size)
 
 void __pfcq_free(void** _pointer)
 {
+#ifndef __INTEL_COMPILER
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnonnull-compare"
+#endif /* __INTEL_COMPILER */
+
 	if (likely(_pointer))
+
+#ifndef __INTEL_COMPILER
+#pragma GCC diagnostic pop
+#endif /* __INTEL_COMPILER */
+
 	{
 		void* p = *_pointer;
 		if (likely(p))
