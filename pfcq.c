@@ -189,31 +189,21 @@ void* pfcq_realloc(void* _old_pointer, size_t _new_size)
 
 void __pfcq_free(void** _pointer)
 {
-#ifndef __INTEL_COMPILER
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wnonnull-compare"
-#endif /* __INTEL_COMPILER */
+	void* p = *_pointer;
 
-	if (likely(_pointer))
-
-#ifndef __INTEL_COMPILER
-#pragma GCC diagnostic pop
-#endif /* __INTEL_COMPILER */
-
+	if (likely(p))
 	{
-		void* p = *_pointer;
-		if (likely(p))
+		size_t* s = (size_t*)p - 1;
+		if (likely(s))
 		{
-			size_t* s = (size_t*)p - 1;
-			if (likely(s))
-			{
-				size_t size = *s;
-				pfcq_zero(s, size);
-				free(s);
-				*_pointer = NULL;
-			}
-		}
-	}
+			size_t size = *s;
+			pfcq_zero(s, size);
+			free(s);
+			*_pointer = NULL;
+		} else
+			warning("Incorrect pointer given to pfcq_free()");
+	} else
+		warning("NULL pointer given to pfcq_free()");
 }
 
 int pfcq_isnumber(const char* _string)
